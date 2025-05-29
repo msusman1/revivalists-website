@@ -1,6 +1,6 @@
 "use client"
 
-import {useState} from "react"
+import {useEffect, useState} from "react"
 import {useInView} from "react-intersection-observer"
 import {motion} from "framer-motion"
 import Image from "next/image"
@@ -42,11 +42,22 @@ export default function Blogs() {
 
 
     const [currentIndex, setCurrentIndex] = useState(0)
-    const maxIndex = Math.max(0, blogPosts.length - (window?.innerWidth >= 1024 ? 3 : window?.innerWidth >= 640 ? 2 : 1))
 
+    const [maxIndex, setMaxIndex] = useState(0)
     const nextSlide = () => {
         setCurrentIndex((prevIndex) => Math.min(prevIndex + 1, maxIndex))
     }
+    useEffect(() => {
+        const updateMaxIndex = () => {
+            const visibleCards = window.innerWidth >= 1024 ? 3 : window.innerWidth >= 640 ? 2 : 1
+            setMaxIndex(Math.max(0, blogPosts.length - visibleCards))
+        }
+
+        updateMaxIndex()
+        window.addEventListener('resize', updateMaxIndex)
+        return () => window.removeEventListener('resize', updateMaxIndex)
+    }, [])
+
 
     const prevSlide = () => {
         setCurrentIndex((prevIndex) => Math.max(prevIndex - 1, 0))
